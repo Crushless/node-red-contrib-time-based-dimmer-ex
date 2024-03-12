@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var MODE_INC = 'inc';
+var MODE_DEC = 'dec';
 module.exports = function (red) {
     function tick(send, node, config) {
         var newValue;
@@ -7,7 +9,7 @@ module.exports = function (red) {
         if (typeof oldValue === 'string') {
             oldValue = Number.parseInt(oldValue, 10);
         }
-        if (node.context().get('mode') === 'inc') {
+        if (node.context().get('mode') === MODE_INC) {
             newValue = oldValue + config.step;
             if (newValue > config.maxValue) {
                 clearInterval(node.context().get('timer'));
@@ -36,9 +38,21 @@ module.exports = function (red) {
             }
             red.nodes.createNode(this, config);
             var node = this;
+            var regExpStartCommand;
+            var regExpStopCommand;
+            try {
+                regExpStartCommand = new RegExp(config.startCommand);
+            }
+            catch (error) {
+                node.error("invalid Start Command RegExp: " + error);
+            }
+            try {
+                regExpStopCommand = new RegExp(config.stopCommand);
+            }
+            catch (error) {
+                node.error("invalid Stop Command RegExp: " + error);
+            }
             node.on('input', function (msg, send, done) {
-                var timer;
-                var currentMode;
                 switch (typeof msg.payload) {
                     case 'number':
                         node.status({ fill: 'grey', shape: 'dot', text: msg.payload.toString() });
@@ -46,23 +60,30 @@ module.exports = function (red) {
                         send(msg);
                         break;
                     case 'string':
-                        timer = node.context().get('timer');
-                        switch (msg.payload) {
-                            case config.startCommand:
-                                if (timer)
-                                    break;
-                                currentMode = node.context().get('mode');
-                                node.context().set('mode', currentMode === 'inc' ? 'dec' : 'inc');
+                        var timer = node.context().get('timer');
+                        var payload = String(msg.payload);
+                        if (regExpStartCommand.test(payload)) {
+                            if (!timer) {
+                                var currentMode = node.context().get('mode');
+                                node.context().set('mode', currentMode === MODE_INC ? MODE_DEC : MODE_INC);
                                 node.context().set('timer', setInterval(function () { return tick(send, node, config); }, config.interval));
-                                break;
-                            case config.stopCommand:
-                                if (!timer)
-                                    break;
+                            }
+                        }
+                        else if (regExpStopCommand.test(payload)) {
+                            if (timer) {
                                 clearInterval(timer);
                                 node.context().set('timer', null);
-                                break;
-                            default:
-                                node.log("missing command \"" + msg.payload + "\"");
+                            }
+                        }
+                        else {
+                            node.log("missing command \"" + msg.payload + "\"");
+                        }
+                        break;
+                    case 'object':
+                        var next = msg.payload.next;
+                        if (typeof next === 'string') {
+                            next = next.toLowerCase();
+                            node.context().set('mode', next === MODE_INC ? MODE_DEC : MODE_INC);
                         }
                         break;
                     default:

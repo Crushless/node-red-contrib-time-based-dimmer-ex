@@ -32,8 +32,39 @@ module.exports = function (red) {
             time_based_dimmer_config_1.fixBrokenConfig(config);
             red.nodes.createNode(this, config);
             var node = this;
+            var regExpStartIncCommand;
+            var regExpStartDecCommand;
+            var regExpStopIncCommand;
+            var regExpStopDecCommand;
+            try {
+                regExpStartIncCommand = new RegExp(config.startIncCommand);
+            }
+            catch (error) {
+                node.error("invalid Start Increase Command RegExp: " + error);
+                return;
+            }
+            try {
+                regExpStartDecCommand = new RegExp(config.startDecCommand);
+            }
+            catch (error) {
+                node.error("invalid Start Decrease Command RegExp: " + error);
+                return;
+            }
+            try {
+                regExpStopIncCommand = new RegExp(config.stopIncCommand);
+            }
+            catch (error) {
+                node.error("invalid Stop Increase Command RegExp: " + error);
+                return;
+            }
+            try {
+                regExpStopDecCommand = new RegExp(config.stopDecCommand);
+            }
+            catch (error) {
+                node.error("invalid Stop Decrease Command RegExp: " + error);
+                return;
+            }
             node.on('input', function (msg, send, done) {
-                var timer;
                 switch (typeof msg.payload) {
                     case 'number':
                         node.status({ fill: 'grey', shape: 'dot', text: msg.payload.toString() });
@@ -41,29 +72,28 @@ module.exports = function (red) {
                         send(msg);
                         break;
                     case 'string':
-                        timer = node.context().get('timer');
-                        switch (msg.payload) {
-                            case config.startIncCommand:
-                                if (timer)
-                                    break;
+                        var timer = node.context().get('timer');
+                        var payload = String(msg.payload);
+                        if (regExpStartIncCommand.test(payload)) {
+                            if (!timer) {
                                 node.context().set('mode', 'inc');
                                 node.context().set('timer', setInterval(function () { return tick(send, node, config); }, config.interval));
-                                break;
-                            case config.startDecCommand:
-                                if (timer)
-                                    break;
+                            }
+                        }
+                        else if (regExpStartDecCommand.test(payload)) {
+                            if (!timer) {
                                 node.context().set('mode', 'dec');
                                 node.context().set('timer', setInterval(function () { return tick(send, node, config); }, config.interval));
-                                break;
-                            case config.stopIncCommand:
-                            case config.stopDecCommand:
-                                if (!timer)
-                                    break;
+                            }
+                        }
+                        else if (regExpStopIncCommand.test(payload) || regExpStopDecCommand.test(payload)) {
+                            if (timer) {
                                 clearInterval(timer);
                                 node.context().set('timer', null);
-                                break;
-                            default:
-                                node.log("missing command \"" + msg.payload + "\"");
+                            }
+                        }
+                        else {
+                            node.log("missing command \"" + payload + "\"");
                         }
                         break;
                     default:

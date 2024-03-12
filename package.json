@@ -1,7 +1,7 @@
 {
-  "name": "node-red-contrib-time-based-dimmer",
+  "name": "node-red-contrib-time-based-dimmer-ex",
   "version": "0.8.1",
-  "description": "A time based dimmer for node-red. It can be used to increase/descrease a numerical value where one event starts the process (like pressing a button) and another event (like releasing the button) stops it.",
+  "description": "A time based dimmer for node-red. It can be used to increase/decrease a numerical value where one event starts the process (like pressing a button) and another event (like releasing the button) stops it. This is a extended version that allows to specify the commands as an RegExp.",
   "keywords": [
     "node-red"
   ],
@@ -33,14 +33,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/Woozinator/node-red-time-based-dimmer.git"
+    "url": "it+ssh://git@github.com:Crushless/node-red-contrib-time-based-dimmer-ex.git"
   },
-  "author": "Johannes Herrmann (johannes.herrmann@12-of-spades.com)",
+  "author": "Armin Kremm (kremmarmin@gmail.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Woozinator/node-red-time-based-dimmer/issues"
+    "url": "https://github.com/Crushless/node-red-contrib-time-based-dimmer-ex/issues"
   },
-  "homepage": "https://github.com/Woozinator/node-red-time-based-dimmer#readme",
+  "homepage": "https://github.com/Crushless/node-red-contrib-time-based-dimmer-ex#readme",
   "node-red": {
     "nodes": {
       "time-based-dimmer": "dist/time-based-dimmer.js",

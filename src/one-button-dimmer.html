@@ -42,11 +42,11 @@
         <input type="text" id="node-input-maxValue" placeholder="MaxValue">
     </div>
     <div class="form-row">
-        <label for="node-input-startCommand"><i class="icon-tag"></i> Start Command</label>
+        <label for="node-input-startCommand"><i class="icon-tag"></i> Start Command RegExp</label>
         <input type="text" id="node-input-startCommand" placeholder="Start Command">
     </div>
     <div class="form-row">
-        <label for="node-input-stopCommand"><i class="icon-tag"></i> Stop Command</label>
+        <label for="node-input-stopCommand"><i class="icon-tag"></i> Stop Command RegExp</label>
         <input type="text" id="node-input-stopCommand" placeholder="Stop Command">
     </div>
 </script>
@@ -62,8 +62,8 @@
     </p>
     <p>Example: These commands are used by Xiaomi Aqara switch if the switch is attached using the zigbee2mqtt service. (They are stored in the .click property and need to be extracted first.)
         <ul>
-            <li>Start Command: &quot;long&quot;</li>
-            <li>Stop Command: &quot;long_release&quot;</li>
+            <li>Start Command: &quot;^long$&quot;</li>
+            <li>Stop Command: &quot;^long_release$&quot;</li>
         </ul>
     </p>
 </script>
